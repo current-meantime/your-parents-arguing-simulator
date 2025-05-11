@@ -68,7 +68,7 @@ async def get_ai_response(message: dict, retries: int = 3):
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": message["role"], "content": cleaned_content}
         ],
-        "max_tokens": 600
+        "max_tokens": 500 # Adjust as needed
     }
 
     #print("\nDebug - Final payload:", json.dumps(payload, indent=2))
