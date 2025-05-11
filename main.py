@@ -52,7 +52,7 @@ async def get_ai_response(message: dict, retries: int = 3):
     }
     
     # Debug incoming message
-    print(f"\nDebug - Incoming message:", json.dumps(message, indent=2))
+    #print(f"\nDebug - Incoming message:", json.dumps(message, indent=2))
     
     # Ensure role is either 'user' or 'assistant'
     if message["role"] not in ['user', 'assistant']:
@@ -71,7 +71,7 @@ async def get_ai_response(message: dict, retries: int = 3):
         "max_tokens": 600
     }
 
-    print("\nDebug - Final payload:", json.dumps(payload, indent=2))
+    #print("\nDebug - Final payload:", json.dumps(payload, indent=2))
 
     for attempt in range(retries):
         try:
@@ -137,11 +137,10 @@ async def argument_loop(websocket: WebSocket):
         user_messages = state["conversation"]
 
         # Debug message history
-        print("\nDebug - Message history:")
-        for idx, msg in enumerate(user_messages):
-            print(f"Message {idx}: {json.dumps(msg, indent=2)}")
-        
-        # Rest of the logic remains the same
+        #print("\nDebug - Message history:")
+        #for idx, msg in enumerate(user_messages):
+        #    print(f"Message {idx}: {json.dumps(msg, indent=2)}")
+
         turn_index = len(user_messages)
         is_p1_turn = turn_index % 2 == 0
         prefix = "👩 Parent 1" if is_p1_turn else "🧔 Parent 2"
@@ -151,8 +150,8 @@ async def argument_loop(websocket: WebSocket):
             "content": user_messages[-1]["content"]
         }
         
-        print(f"\nDebug - Current turn: {'Parent 1' if is_p1_turn else 'Parent 2'}")
-        print(f"Debug - Role being sent: {last_message['role']}")
+        #print(f"\nDebug - Current turn: {'Parent 1' if is_p1_turn else 'Parent 2'}")
+        #print(f"Debug - Role being sent: {last_message['role']}")
 
         response = await get_ai_response(last_message)
         await websocket.send_text(f"{prefix}: {response}")
