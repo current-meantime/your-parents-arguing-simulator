@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Arguing Parents</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+
+    .chat-container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      height: 80vh;
+      overflow-y: scroll;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      padding: 10px 15px;
+      border-radius: 20px;
+      margin: 5px 0;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .parent1 {
+      background-color: #e6f3ff;
+      align-self: flex-start;
+    }
+
+    .parent2 {
+      background-color: #ffe6e6;
+      align-self: flex-end;
+    }
+
+    .sender {
+      font-weight: bold;
+      font-size: 0.9em;
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div style="text-align:center; margin-top: 20px;">
+    <label>Max Turns:
+      <input id="turns" type="number" value="5" min="1" style="width: 50px;" autofocus 
+             onkeydown="if(event.key === 'Enter') startChat();" />
+    </label>
+    <button onclick="startChat()">▶️ Start</button>
+    <button onclick="togglePause()">⏸️ Pause/Resume</button>
+  </div>
+
+  <div class="chat-container" id="chat"></div>
+
+  <script>
+    let ws;
+
+    function startChat() {
+      const turns = document.getElementById("turns").value;
+      document.getElementById("chat").innerHTML = "";
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+
+      ws = new WebSocket(`ws://localhost:8000/ws?turns=${turns}`);
+
+      ws.onmessage = (event) => {
+        const message = event.data;
+        const isParent1 = message.includes("Parent 1");
+
+        const bubble = document.createElement("div");
+        bubble.classList.add("message", isParent1 ? "parent1" : "parent2");
+
+        const [sender, ...text] = message.split(":");
+        const content = text.join(":").trim();
+
+        bubble.innerHTML = `
+          <div class="sender">${sender}</div>
+          <div>${content}</div>
+        `;
+        const chat = document.getElementById("chat");
+        chat.appendChild(bubble);
+        chat.scrollTop = chat.scrollHeight;
+      };
+
+      ws.onclose = () => {
+        const note = document.createElement("div");
+        note.classList.add("message");
+        note.style.textAlign = "center";
+        note.style.color = "gray";
+        note.textContent = "🔌 Connection closed.";
+        document.getElementById("chat").appendChild(note);
+      };
+    }
+
+    function togglePause() {
+      fetch("/toggle", { method: "POST" });
+    }
+  </script>
+</body>
+</html>
