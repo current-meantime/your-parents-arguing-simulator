@@ -104,7 +104,7 @@ state = {
     "paused": False,
     "turns": 0,
     "max_turns": 5,
-    "conversation": []  # New: store messages here instead of Redis
+    "conversation": []
 }
 
 # WebSocket endpoint
@@ -115,7 +115,7 @@ async def websocket_endpoint(websocket: WebSocket, turns: int = Query(5)):
         state["paused"] = False
         state["turns"] = 0
         state["max_turns"] = turns
-        state["conversation"] = []  # Clear conversation
+        state["conversation"] = []
 
         # Initialize conversation
         init = {"role": "user", "content": "Why are you late again?!"}
@@ -134,7 +134,6 @@ async def argument_loop(websocket: WebSocket):
             await asyncio.sleep(1)
             continue
 
-        # Get messages from state instead of Redis
         user_messages = state["conversation"]
 
         # Debug message history
@@ -158,7 +157,6 @@ async def argument_loop(websocket: WebSocket):
         response = await get_ai_response(last_message)
         await websocket.send_text(f"{prefix}: {response}")
 
-        # Store in state instead of Redis
         state["conversation"].append({
             "role": "assistant",
             "content": response
